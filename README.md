@@ -151,13 +151,26 @@ ls -l /dev/serial0
 
 ---
 
-## 8. Python 串口调试示例
+# 树莓派 5 串口调试注意事项
 
-```python
-import serial
+## 1. IP 地址
+- **IP 地址经常会变**，每次连接前请先确认。
+- 推荐使用 **VSCode Remote SSH** 进行连接，方便开发与调试。
 
-ser = serial.Serial('/dev/ttyAMA10', 115200, timeout=1)
-ser.write(b'Hello Pi5\r\n')
-print(ser.readline().decode('utf-8', errors='ignore'))
-ser.close()
-```
+---
+
+## 2. 串口简单测试方法
+
+1. 将 **GPIO14 (TXD0)** 与 **GPIO15 (RXD0)** 用杜邦线连接在一起（回环测试）。
+2. 在树莓派 5 上：
+   - `ttyAMA0` → 高性能 UART0  
+   - GPIO14(TXD0) → 40-Pin 第 8 脚  
+   - GPIO15(RXD0) → 40-Pin 第 10 脚
+3. 确认能从 GPIO14 发出数据，并由 GPIO15 接收。
+
+---
+
+## 3. 测试代码
+测试代码位置：
+ieee_main/main.py
+
