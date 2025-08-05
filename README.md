@@ -188,6 +188,141 @@ ls -l /dev/serial0
 ---
 
 ## 3. 测试代码
-测试代码位置：
-ieee_main/main.py
+我帮你把你这段 **树莓派开机自启动 main.py（带时间戳日志）** 的流程整理成一份简洁的中文 **Markdown**，方便你直接保存或运行：
 
+---
+
+````markdown
+# 树莓派开机自启动 main.py（systemd + 日志）
+
+## 1. 环境信息
+- 测试代码路径：`/home/aboutberlin/Desktop/IEEE_RAM/main.py`
+- Python 路径：
+```bash
+which python3
+# 输出：
+/usr/bin/python3
+````
+
+---
+
+## 2. 创建启动脚本
+
+```bash
+nano /home/aboutberlin/Desktop/IEEE_RAM/start.sh
+```
+
+写入：
+
+```bash
+#!/bin/bash
+# 日志目录
+LOG_DIR="/home/aboutberlin/Desktop/IEEE_RAM/logs"
+mkdir -p "$LOG_DIR"
+
+# 日志文件（按日期命名）
+LOG_FILE="$LOG_DIR/$(date +'%Y-%m-%d_%H-%M-%S').log"
+
+# 进入项目目录
+cd /home/aboutberlin/Desktop/IEEE_RAM
+
+# 运行 main.py，把 stdout 和 stderr 都记录到日志
+/usr/bin/python3 main.py >> "$LOG_FILE" 2>&1
+```
+
+保存并赋权：
+
+```bash
+chmod +x /home/aboutberlin/Desktop/IEEE_RAM/start.sh
+```
+
+---
+
+## 3. 创建 systemd 服务
+
+```bash
+sudo nano /etc/systemd/system/ieee_ram.service
+```
+
+写入：
+
+```ini
+[Unit]
+Description=IEEE RAM Main Python Script
+After=network.target
+
+[Service]
+ExecStart=/home/aboutberlin/Desktop/IEEE_RAM/start.sh
+WorkingDirectory=/home/aboutberlin/Desktop/IEEE_RAM
+StandardOutput=journal
+StandardError=journal
+Restart=always
+RestartSec=5
+User=aboutberlin
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**说明：**
+
+* `Restart=always`：脚本异常退出会重启
+* `RestartSec=5`：延迟 5 秒重启
+* `User=aboutberlin`：使用你的账号运行
+* 日志保存在 `/home/aboutberlin/Desktop/IEEE_RAM/logs`，也能用 `journalctl` 查看
+
+---
+
+## 4. 启用 & 启动服务
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable ieee_ram.service
+sudo systemctl start ieee_ram.service
+```
+
+---
+
+## 5. 确认后台运行
+
+查看服务状态：
+
+```bash
+sudo systemctl status ieee_ram.service
+```
+
+查看 systemd 实时日志：
+
+```bash
+journalctl -u ieee_ram.service -f
+```
+
+查看自定义时间戳日志：
+
+```bash
+ls /home/aboutberlin/Desktop/IEEE_RAM/logs
+cat /home/aboutberlin/Desktop/IEEE_RAM/logs/最新的文件.log
+```
+
+
+sudo systemctl status ieee_ram.service
+
+ps aux | grep python
+
+aboutbe+    1661 52.3  6.4 800544 267184 ?       Rl   22:53   0:12 /usr/bin/python3 main.py
+aboutbe+    1897  0.0  0.0   6240  1616 pts/6    S+   22:53   0:00 grep --color=auto python
+
+sudo systemctl status ieee_ram.service
+
+
+● ieee_ram.service - IEEE RAM Main Python Script
+     Loaded: loaded (/etc/systemd/system/ieee_ram.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2025-08-05 22:49:30 BST; 4min 32s ago
+   Main PID: 1658 (start.sh)
+      Tasks: 5 (limit: 4752)
+        CPU: 25.780s
+     CGroup: /system.slice/ieee_ram.service
+             ├─1658 /bin/bash /home/aboutberlin/Desktop/IEEE_RAM/start.sh
+             └─1661 /usr/bin/python3 main.py
+
+Aug 05 22:49:30 raspberrypi systemd[1]: Started ieee_ram.service - IEEE RAM Main Python Script.
