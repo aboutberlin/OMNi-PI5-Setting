@@ -5,7 +5,7 @@
 ## 1. 系统安装与首次启动
 
 我们推荐使用 **[Raspberry Pi Imager](https://pidoc.cn/docs/computers/getting-started#%E4%BD%BF%E7%94%A8imager%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85)** 安装操作系统。  
-安装完成后，插入网线或配置 Wi-Fi，并确认 IP 地址。
+安装完成后，插入网线或配置 Wi-Fi，并确认 IP 地址。根据提示，输入账户密码，其他都随便你咋样
 
 示例 IP：
 ```
@@ -24,6 +24,10 @@ a1231111
 ---
 
 ## 2. SSH 配置修改
+默认很可能不给ssh，你先检查，而且记得一定要两个电脑都有线连接，无线不行
+
+hostname -I
+
 
 编辑 SSH 配置文件：
 
@@ -44,13 +48,14 @@ PasswordAuthentication no
 PermitRootLogin no
 PasswordAuthentication yes
 ```
+前面如果有#，记得去掉
 
 保存并重启 SSH 服务：
 
 ```bash
 sudo systemctl restart ssh
 ```
-
+sudo systemctl status ssh 检查，active就成功了
 ---
 
 ## 3. 文件同步到树莓派
@@ -127,7 +132,7 @@ ls -l /dev/serial0
 * **正确（高性能 UART，GPIO14/15）**
 
   ```
-  /dev/serial0 -> ttyAMA0
+  /dev/serial0 -> ttyAMA10
   ```
 * **错误（未释放给主 UART）**
 
@@ -138,6 +143,15 @@ ls -l /dev/serial0
 ---
 
 ## 7. Pi 5 串口注意事项
+
+**Pi 5 的“serial0”永远指向调试口 (`ttyAMA10`)——这不是 Bug，而是官方的默认设计**。
+
+最重要的是： ser = serial.Serial('/dev/ttyAMA10', 115200, timeout=1)
+串口设备，/dev/ttyAMA10 (serial0 别名)，调试专用 3-Pin 端子
+/dev/ttyAMA0，PL011 UART0	GPIO14(TXD0) / GPIO15(RXD0)，也就是 40-Pin 的 8/10 号脚
+而且为什么要用serial0和ttyAMA10呢？因为ttyAMA10是跟着不同班子走的，serial0可以无视不同班子
+
+因此，你要用ttyAMA0，也就是ser = serial.Serial('/dev/ttyAMA0', 115200, timeout=1)，确定
 
 * 在 **Pi 5** 上：
 
