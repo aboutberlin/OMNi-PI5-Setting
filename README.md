@@ -53,8 +53,11 @@ PasswordAuthentication yes
 保存并重启 SSH 服务：
 
 ```bash
+sudo systemctl enable ssh
+sudo systemctl start ssh
 sudo systemctl restart ssh
 ```
+sudo systemctl is-enabled ssh
 sudo systemctl status ssh 检查，active就成功了
 ---
 
