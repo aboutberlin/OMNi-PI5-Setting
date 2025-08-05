@@ -80,6 +80,7 @@ pip3 install pandas --break-system-packages
 ---
 
 ## 5. 串口配置（Pi 5 专用）
+![Port Map](image/Raspberry-Pi-5-Pinout--1210x642.jpg)
 
 编辑串口配置文件：
 
