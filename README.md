@@ -326,3 +326,19 @@ sudo systemctl status ieee_ram.service
              └─1661 /usr/bin/python3 main.py
 
 Aug 05 22:49:30 raspberrypi systemd[1]: Started ieee_ram.service - IEEE RAM Main Python Script.
+
+
+
+1. 停止当前运行的服务
+bash
+Copy
+Edit
+sudo systemctl stop ieee_ram.service
+这会立刻停止当前正在后台运行的 main.py。
+
+2. 禁止开机自启动
+bash
+Copy
+Edit
+sudo systemctl disable ieee_ram.service
+这会从开机启动项中移除 ieee_ram.service，下次开机不会自动运行。
