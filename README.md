@@ -88,7 +88,7 @@ pip3 install pandas --break-system-packages
 
 ---
 
-## 5. 串口配置（Pi 5 专用）
+## 5. 串口配置（Pi 5 专用）]
 ![Port Map](image/Raspberry-Pi-5-Pinout--1210x642.jpg)
 
 编辑串口配置文件：
@@ -114,6 +114,26 @@ dtoverlay=disable-bt
 ```bash
 sudo systemctl disable hciuart
 ```
+最近一次成功的办法：
+然后检查是否存在节点
+ls -l /dev/ttyAMA0
+ls -l /dev/serial0
+ls -l /dev/serial1
+发现不存在ls -l /dev/ttyAMA0
+sudo raspi-config
+依次进入：
+
+Interface Options
+
+Serial Port
+
+“Login shell over serial?” → No
+
+“Enable serial port hardware?” → Yes
+退出后 reboot：sudo reboot
+然后代码SER_DEV      = '/dev/ttyAMA0'   # GPIO14/15 默认 UART0
+就可以了
+
 
 ---
 
